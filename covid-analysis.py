@@ -4,9 +4,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
-COUNTRY_OR_PROVINCE = 'Province'
-Country = "Canada"
-Province = "British Columbia"
+USER = True
+
+Province = None
+
+if USER:
+    Country = input("Please enter your country of choice in the formal style: ")
+
+    Province = input("Specify a province or leave blank: ")
+else:
+    Country = "Canada"
+    Province = "British Columbia"
+    
+#if not Province:
+#    Province = None
 
 path_to_data = "C:\\Users\\noved\\Documents\\Actual Documents\\Programming\\COVID-19\\csse_covid_19_data\\csse_covid_19_time_series\\time_series_19-covid-"
 confirmedcsvpath = path_to_data + "Confirmed.csv"
@@ -33,20 +44,20 @@ with open(confirmedcsvpath, 'r') as confirmedcsv: # autocloses after it's finish
     #print(myReader.fieldnames)
 
 
-
+    firstRow = True
     for row in myReader:
         #row={k: v for k, v in row.items() if v is not None}
         #pass
-        if not row["Country/Region"] == Country:
+        if not row["Country/Region"].lower() == Country.lower():
             continue
-        if COUNTRY_OR_PROVINCE == "Province":
-
+        if Province:
+            Region = Province + ", " + Country
             if row["Province/State"] == Province:
 
-                if row["Province/State"]:
-                    print(row["Province/State"], end = ", ")
+                #if row["Province/State"]:
+                    #print(row["Province/State"], end = ", ")
 
-                print(row["Country/Region"]+ ": ")
+                #print(row["Country/Region"]+ ": ")
                 newrow={k: v for k, v in row.items() if isinstance(k, date)}
 
                 
@@ -57,12 +68,22 @@ with open(confirmedcsvpath, 'r') as confirmedcsv: # autocloses after it's finish
                     #for i in range(0,int(int(v)/2.2)):
                     #    print("#", end="")
                     cases.append(int(v))
-                    casesstr.append(v)
-                    print()
+                    #print()
                     #if not (i%7):
                     #    print(" ")
-        elif COUNTRY_OR_PROVINCE == "Country":
-            pass
+        else:
+            Region = Country
+            #print(row["Country/Region"]+ ": ")
+            newrow={k: v for k, v in row.items() if isinstance(k, date)}
+            print(row)
+            for iii, (k,v) in enumerate(newrow.items()):
+                if firstRow:
+                    cases.append(int(v))
+                else:
+                    cases[iii]+=int(v)
+                
+            firstRow = False
+            
 
 #ax = plt.subplot(111)
 #ax.bar(dates, cases, width=0.5)
@@ -73,7 +94,7 @@ plt.plot(dates, cases)
 plt.grid()
 plt.xlabel("Date")
 plt.ylabel("Confirmed Cases")
-plt.title("Confirmed Cases in BC")
+plt.title("Confirmed Cases in %s" % Region)
 #plt.xlim(datetime.date.today)
 plt.show()
         
